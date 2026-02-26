@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to use Klipsy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Geist', 'sans-serif'],
+                        mono: ['Geist Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#52c8b8',
+                            500: '#3eb4a4',
+                            600: '#2c9b8c',
+                        },
+                        gold: {
+                            400: '#e8c47a',
+                            500: '#c9a24e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-body: #050505;
+            --bg-panel: #0f0f11;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: #e4e4e7;
+            scroll-behavior: smooth;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 17, 0.7);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #52c8b8, #c9a24e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .orb-preview {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(120deg, #52c8b8, #c9a24e, #8b5cf6, #52c8b8);
+            background-size: 300% 300%;
+            animation: gradient-shift 8s ease-in-out infinite, float 4s ease-in-out infinite;
+            filter: blur(2px);
+            box-shadow: 0 0 40px rgba(82, 200, 184, 0.4);
+        }
+
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pip-demo-box {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: #1a1a1e;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .floating-pip {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            width: 80px;
+            height: 120px;
+            background: #27272a;
+            border: 2px solid #52c8b8;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: bounce-in 2s infinite;
+        }
+
+        @keyframes bounce-in {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .highlight-box {
+            background: linear-gradient(to right, rgba(82, 200, 184, 0.1), transparent);
+            border-left: 4px solid #52c8b8;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="h-3 w-3 rounded-full bg-brand-400 animate-pulse"></div>
+                <span class="font-bold text-xl tracking-tight">Klipsy</span>
+            </div>
+            <a href="index.html" class="bg-brand-500 hover:bg-brand-600 px-5 py-2 rounded-full text-xs font-bold text-black transition-all">Go to App</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6">
+        <div class="max-w-4xl mx-auto text-center reveal">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+                How to use <span class="gradient-text">Klipsy.</span>
+            </h1>
+            <p class="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                Follow these simple steps to get help with your work in seconds.
+            </p>
+            <div class="mt-12 flex justify-center">
+                <div class="orb-preview"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Steps -->
+    <section class="max-w-5xl mx-auto px-6 py-20 space-y-40">
+        
+        <!-- STEP 1: START HERE (PiP) -->
+        <div id="pip" class="grid md:grid-cols-2 gap-16 items-center reveal">
+            <div class="order-2 md:order-1">
+                <div class="pip-demo-box">
+                    <div class="p-4 text-[10px] text-zinc-600 font-mono">YOUR HOMEWORK PAGE</div>
+                    <div class="floating-pip flex items-center justify-center">
+                        <div class="h-4 w-4 rounded-full bg-brand-400/20 animate-ping"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-1 md:order-2">
+                <span class="px-3 py-1 bg-brand-500/10 text-brand-400 text-xs font-bold rounded-full border border-brand-500/20 mb-4 inline-block tracking-widest uppercase">Start Here</span>
+                <h2 class="text-4xl font-bold mb-6 italic">01. Open the "Mini Window"</h2>
+                <div class="space-y-4 text-zinc-300 text-lg">
+                    <p>Before you do anything else, look for the <strong class="text-white">Square Icon</strong> in the top right corner of the Klipsy header. </p>
+                    <p class="highlight-box">
+                        This pops Klipsy into a <strong>floating window</strong>. You can move it around and it will stay visible even when you click on your homework.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2: ATTACH -->
+        <div id="connect" class="grid md:grid-cols-2 gap-16 items-center reveal">
+            <div>
+                <span class="text-zinc-500 font-mono text-xs mb-4 block tracking-widest uppercase">Step Two</span>
+                <h2 class="text-4xl font-bold mb-6">02. "Show" Klipsy your page</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed mb-8">
+                    Inside your floating window, click the big button that says <strong class="text-white">"Attach Source."</strong> A list of your tabs will appear.
+                </p>
+                <div class="bg-zinc-900/80 p-6 rounded-2xl border border-white/5">
+                    <h4 class="text-brand-400 font-bold mb-2">How to choose:</h4>
+                    <p class="text-sm text-zinc-500">Pick the tab where your question is. Once you click "Share," Klipsy is officially connected and ready to look at your screen!</p>
+                </div>
+            </div>
+            <div class="glass-card p-10 flex flex-col items-center justify-center space-y-6">
+                <div class="w-full flex justify-between items-center px-4 py-3 bg-zinc-800 rounded-lg">
+                    <div class="flex gap-2">
+                        <div class="w-2 h-2 rounded-full bg-red-500/50"></div>
+                        <div class="w-2 h-2 rounded-full bg-yellow-500/50"></div>
+                        <div class="w-2 h-2 rounded-full bg-green-500/50"></div>
+                    </div>
+                    <div class="text-[10px] text-zinc-500 uppercase">Browser Tab</div>
+                </div>
+                <div class="w-24 h-24 rounded-full border-4 border-dashed border-zinc-700 flex items-center justify-center">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#52c8b8" stroke-width="2" class="animate-bounce"><path d="M12 5v14M5 12h14"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: SCAN -->
+        <div id="scan" class="grid md:grid-cols-2 gap-16 items-center reveal">
+            <div class="order-2 md:order-1 flex justify-center">
+                <div class="orb-preview" style="width: 200px; height: 200px;"></div>
+            </div>
+            <div class="order-1 md:order-2">
+                <span class="text-zinc-500 font-mono text-xs mb-4 block tracking-widest uppercase">Final Step</span>
+                <h2 class="text-4xl font-bold mb-6">03. Hit "Scan Page"</h2>
+                <p class="text-zinc-400 text-lg leading-relaxed mb-6">
+                    Whenever you're stuck on a question, just click <strong class="text-brand-400">Scan Page</strong>. The glowing Orb will start "thinking."
+                </p>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4">
+                        <div class="mt-1 w-6 h-6 rounded bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold text-xs">A</div>
+                        <p class="text-zinc-500 text-sm">Klipsy takes a picture of what you see.</p>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="mt-1 w-6 h-6 rounded bg-brand-500/20 flex items-center justify-center text-brand-400 font-bold text-xs">B</div>
+                        <p class="text-zinc-500 text-sm">The answer appears instantly inside the Orb.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Simple FAQ / Recap -->
+    <section class="max-w-4xl mx-auto px-6 py-32 border-t border-white/5">
+        <h2 class="text-3xl font-bold mb-12 text-center italic">The "Too Long; Didn't Read" Version:</h2>
+        <div class="grid gap-4">
+            <div class="glass-card p-6 flex gap-6 items-center">
+                <div class="text-2xl font-bold text-brand-400">1</div>
+                <p class="text-zinc-300">Click the <span class="text-white font-bold">Square Icon</span> to pop out the window.</p>
+            </div>
+            <div class="glass-card p-6 flex gap-6 items-center">
+                <div class="text-2xl font-bold text-brand-400">2</div>
+                <p class="text-zinc-300"><span class="text-white font-bold">Connect</span> it to your homework tab.</p>
+            </div>
+            <div class="glass-card p-6 flex gap-6 items-center">
+                <div class="text-2xl font-bold text-brand-400">3</div>
+                <p class="text-zinc-300">Click <span class="text-white font-bold">Scan Page</span> and let the Orb solve it.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 px-6 text-center">
+        <a href="index.html" class="inline-block px-12 py-5 bg-brand-500 hover:bg-brand-600 text-black font-black rounded-full transition-all hover:scale-110 uppercase tracking-widest text-sm shadow-2xl shadow-brand-500/40">
+            Let's Start Learning
+        </a>
+    </footer>
+
+    <script>
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+    </script>
+</body>
+</html>
