@@ -155,10 +155,51 @@
         </div>
     </section>
 
-    <!-- Detailed Steps -->
+    <!-- Detailed Steps (updated with GROQ API key prerequisite) -->
     <section class="max-w-5xl mx-auto px-6 py-20 space-y-40">
         
-        <!-- STEP 1: START HERE (PiP) -->
+        <!-- STEP 0: GET GROQ API KEY (new detailed instructions) -->
+        <div id="groq-api-key" class="grid md:grid-cols-2 gap-16 items-center reveal">
+            <!-- left: visual -->
+            <div class="order-2 md:order-1">
+                <div class="glass-card p-10 flex flex-col items-center justify-center space-y-4">
+                    <!-- key icon & groq snippet -->
+                    <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#52c8b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v4M12 22v-4M4 12H2M8 12H6M18 12h-2M22 12h-2M19.07 4.93l-2.83 2.83M4.93 19.07l2.83-2.83M19.07 19.07l-2.83-2.83M4.93 4.93l2.83 2.83" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <div class="flex items-center gap-2 font-mono text-sm">
+                        <span class="bg-black/40 px-3 py-1 rounded-md border border-brand-500/30">gsk_...</span>
+                        <span class="text-brand-400">(your key)</span>
+                    </div>
+                    <div class="w-full h-px bg-white/5 my-2"></div>
+                    <div class="text-xs text-zinc-500 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-green-400/60"></span> GROQ console
+                    </div>
+                </div>
+            </div>
+            <!-- right: detailed steps -->
+            <div class="order-1 md:order-2">
+                <span class="px-3 py-1 bg-brand-500/10 text-brand-400 text-xs font-bold rounded-full border border-brand-500/20 mb-4 inline-block tracking-widest uppercase">Prerequisite — do this first</span>
+                <h2 class="text-4xl font-bold mb-6 italic">00. Get your free GROQ API key</h2>
+                <div class="space-y-4 text-zinc-300 text-lg">
+                    <p>Klipsy uses <strong class="text-white">GROQ</strong> (fast, powerful AI) under the hood. You’ll need a free API key to enable the orb.</p>
+                    <div class="highlight-box">
+                        <ol class="list-decimal list-inside space-y-4 text-zinc-300 text-base">
+                            <li>Open <a href="https://console.groq.com" target="_blank" class="text-brand-400 underline font-medium">console.groq.com</a> and sign up / log in (free, no credit card).</li>
+                            <li>In the left sidebar, click <strong class="text-white">“API Keys”</strong>.</li>
+                            <li>Click the <strong class="text-white">“Create API key”</strong> button.</li>
+                            <li>Give it a descriptive name (e.g., <span class="font-mono text-xs bg-black/40 px-2 py-0.5 rounded">Klipsy-extension</span>) and press <strong class="text-white">“Submit”</strong>.</li>
+                            <li class="border-l-2 border-yellow-500 pl-4 py-1"><span class="text-yellow-400 font-bold">‼️ Copy the key immediately</span> — it starts with <code class="bg-black/60 px-2 py-1 rounded text-sm font-mono">gsk_</code> and will never be shown again. Store it somewhere safe (like a password manager).</li>
+                            <li>Go back to the Klipsy app (the main window, not this help page). Click the <strong class="text-white">⚙️ settings icon</strong> in the top‑right corner, paste your GROQ key into the field, and click <strong class="text-white">“Save”</strong>.</li>
+                        </ol>
+                    </div>
+                    <p class="text-sm text-zinc-500 flex items-center gap-2 mt-4"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span> Your key stays on your device. Klipsy never sends it anywhere except directly to GROQ.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 1: PiP (previously 01, now 01) but numbering updated -->
         <div id="pip" class="grid md:grid-cols-2 gap-16 items-center reveal">
             <div class="order-2 md:order-1">
                 <div class="pip-demo-box">
@@ -169,7 +210,7 @@
                 </div>
             </div>
             <div class="order-1 md:order-2">
-                <span class="px-3 py-1 bg-brand-500/10 text-brand-400 text-xs font-bold rounded-full border border-brand-500/20 mb-4 inline-block tracking-widest uppercase">Start Here</span>
+                <span class="px-3 py-1 bg-brand-500/10 text-brand-400 text-xs font-bold rounded-full border border-brand-500/20 mb-4 inline-block tracking-widest uppercase">Step One</span>
                 <h2 class="text-4xl font-bold mb-6 italic">01. Open the "Mini Window"</h2>
                 <div class="space-y-4 text-zinc-300 text-lg">
                     <p>Before you do anything else, look for the <strong class="text-white">Square Icon</strong> in the top right corner of the Klipsy header. </p>
@@ -180,7 +221,7 @@
             </div>
         </div>
 
-        <!-- STEP 2: ATTACH -->
+        <!-- STEP 2: ATTACH (previously 02, now 02) -->
         <div id="connect" class="grid md:grid-cols-2 gap-16 items-center reveal">
             <div>
                 <span class="text-zinc-500 font-mono text-xs mb-4 block tracking-widest uppercase">Step Two</span>
@@ -208,13 +249,13 @@
             </div>
         </div>
 
-        <!-- STEP 3: SCAN -->
+        <!-- STEP 3: SCAN (previously 03, now 03) -->
         <div id="scan" class="grid md:grid-cols-2 gap-16 items-center reveal">
             <div class="order-2 md:order-1 flex justify-center">
                 <div class="orb-preview" style="width: 200px; height: 200px;"></div>
             </div>
             <div class="order-1 md:order-2">
-                <span class="text-zinc-500 font-mono text-xs mb-4 block tracking-widest uppercase">Final Step</span>
+                <span class="text-zinc-500 font-mono text-xs mb-4 block tracking-widest uppercase">Step Three</span>
                 <h2 class="text-4xl font-bold mb-6">03. Hit "Scan Page"</h2>
                 <p class="text-zinc-400 text-lg leading-relaxed mb-6">
                     Whenever you're stuck on a question, just click <strong class="text-brand-400">Scan Page</strong>. The glowing Orb will start "thinking."
@@ -234,10 +275,16 @@
 
     </section>
 
-    <!-- Simple FAQ / Recap -->
+    <!-- TL;DR – updated with the new GROX API key step -->
     <section class="max-w-4xl mx-auto px-6 py-32 border-t border-white/5">
         <h2 class="text-3xl font-bold mb-12 text-center italic">The "Too Long; Didn't Read" Version:</h2>
         <div class="grid gap-4">
+            <!-- new step 0 -->
+            <div class="glass-card p-6 flex gap-6 items-center">
+                <div class="text-2xl font-bold text-brand-400">0</div>
+                <p class="text-zinc-300"><span class="text-white font-bold">Get a free GROQ API key</span> – go to <span class="font-mono text-xs bg-black/30 px-2 py-1 rounded">console.groq.com</span> → API Keys → create → copy & paste into Klipsy settings ⚙️.</p>
+            </div>
+            <!-- existing steps renumbered (1,2,3) -->
             <div class="glass-card p-6 flex gap-6 items-center">
                 <div class="text-2xl font-bold text-brand-400">1</div>
                 <p class="text-zinc-300">Click the <span class="text-white font-bold">Square Icon</span> to pop out the window.</p>
@@ -251,6 +298,7 @@
                 <p class="text-zinc-300">Click <span class="text-white font-bold">Scan Page</span> and let the Orb solve it.</p>
             </div>
         </div>
+        <p class="text-center text-zinc-600 text-sm mt-8">⚠️ Without a valid GROQ API key, the orb won’t glow. Complete step 0 first!</p>
     </section>
 
     <!-- Footer -->
