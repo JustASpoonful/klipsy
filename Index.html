@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klipsy AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Geist', 'sans-serif'],
+                        mono: ['Geist Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#52c8b8',
+                            500: '#3eb4a4',
+                            600: '#2c9b8c',
+                        },
+                        gold: {
+                            400: '#e8c47a',
+                            500: '#c9a24e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-body: #050505;
+            --bg-panel: #0f0f11;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background-color: var(--bg-body);
+            color: #e4e4e7;
+            font-family: 'Geist', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #app-container {
+            width: 100%;
+            max-width: 800px; /* Even Larger */
+            height: 95vh;
+            max-height: 1200px;
+            min-height: 700px; /* Even Larger */
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.02) inset;
+            border-radius: 32px; /* Even larger */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+        #orb-arena {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, rgba(82, 200, 184, 0.05) 0%, transparent 70%);
+        }
+        .orb-wrapper {
+            position: relative;
+             /* Use viewport-based sizing so it shrinks/grows with the window */
+            width: 80vmin; 
+            height: 80vmin;
+            max-width: 600px;
+            max-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: orb-float 6s ease-in-out infinite;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .orb-bg {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(120deg, #52c8b8, #c9a24e, #8b5cf6, #52c8b8);
+            background-size: 300% 300%;
+            animation: gradient-shift 20s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(82, 200, 184, 0.3);
+            transition: all 0.5s ease;
+            z-index: 1;
+        }
+        .orb-bg::after {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            background: inherit;
+            filter: blur(25px);
+            opacity: 0.6;
+            z-index: -1;
+            transition: all 0.5s ease;
+        }
+        #orb-text-container {
+            position: relative;
+            z-index: 10;
+            width: 85%;
+            max-height: 85%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        #orb-text {
+    color: #ffffff;
+    /* Font size scales with the orb size */
+    font-size: clamp(16px, 4vmin, 24px); 
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.6;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 1;
+    transform: scale(1);
+    overflow-y: auto;
+    max-height: 70%; /* Keeps text inside the orb circle */
+    width: 80%;
+}
+        #orb-text::-webkit-scrollbar { width: 5px; }
+        #orb-text::-webkit-scrollbar-track { background: transparent; }
+        #orb-text::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        @keyframes orb-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .is-thinking .orb-wrapper {
+            animation: orb-float 2.5s ease-in-out infinite;
+            transform: scale(1.05);
+        }
+        .is-thinking .orb-bg {
+            animation: gradient-shift 8s ease-in-out infinite;
+            box-shadow: 0 0 90px rgba(201, 162, 78, 0.6);
+            filter: brightness(1.25);
+        }
+        .is-thinking .orb-bg::after {
+            filter: blur(40px);
+            opacity: 0.9;
+        }
+        .btn-fx { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-fx:active:not(:disabled) { transform: scale(0.97); }
+        body.in-pip {
+            padding: 0; margin: 0;
+            background: var(--bg-panel);
+            background-image: none;
+            align-items: stretch; justify-content: stretch;
+        }
+        body.in-pip #app-container {
+            max-width: none; max-height: none; height: 100vh; width: 100vw;
+            border-radius: 0; border: none; box-shadow: none;
+        }
+        body.in-pip #btn-launch-pip { display: none !important; }
+        #toast {
+            position: fixed; top: 32px; left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: #18181b; border: 1px solid var(--border-subtle);
+            color: #e4e4e7; font-size: 16px; /* Even Larger */
+            font-weight: 500;
+            padding: 12px 24px; /* Even Larger */
+            border-radius: 100px;
+            z-index: 9999; pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+            opacity: 0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; gap: 10px;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast-success { color: #52c8b8 !important; border-color: rgba(82, 200, 184, 0.3) !important; }
+        .toast-error   { color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3) !important; }
+        .dot-flashing {
+            position: relative; width: 10px; height: 10px; border-radius: 5px; /* Even Larger */
+            background-color: #fff; color: #fff;
+            animation: dot-flashing 1s infinite linear alternate; animation-delay: 0.5s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: ''; display: inline-block; position: absolute; top: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .dot-flashing::before {
+            left: -25px; width: 10px; height: 10px; border-radius: 5px; /* Even Larger */
+            background-color: #fff; color: #fff;
+            animation: dot-flashing 1s infinite alternate; animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 25px; width: 10px; height: 10px; border-radius: 5px; /* Even Larger */
+            background-color: #fff; color: #fff;
+            animation: dot-flashing 1s infinite alternate; animation-delay: 1s;
+        }
+        @keyframes dot-flashing {
+            0% { background-color: #fff; }
+            50%, 100% { background-color: rgba(255, 255, 255, 0.3); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <main id="app-container">
+        
+        <!-- Header -->
+        <header class="flex-none px-8 py-4 border-b border-white/5 bg-zinc-900/50 flex justify-between items-center backdrop-blur-md z-20"> <!-- Even Larger padding -->
+            <div class="flex items-center gap-4">
+                <div class="relative flex h-3.5 w-3.5"> <!-- Even Larger -->
+                    <span id="status-ping" class="absolute inline-flex h-full w-full rounded-full bg-zinc-500 opacity-75"></span>
+                    <span id="status-dot" class="relative inline-flex rounded-full h-3.5 w-3.5 bg-zinc-500"></span> <!-- Even Larger -->
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="font-semibold text-zinc-100 text-xl leading-none">Klipsy</h1> <!-- text-xl (20px) -->
+                    <span class="text-sm text-zinc-500 mt-1.5 uppercase tracking-wider font-mono" id="status-text">Disconnected</span> <!-- text-sm (14px) -->
+                </div>
+            </div>
+            
+            <button id="btn-launch-pip" class="btn-fx p-2.5 text-zinc-400 hover:text-brand-400 hover:bg-brand-400/10 rounded-lg border border-transparent hover:border-brand-400/20" title="Open in Picture-in-Picture"> <!-- Even Larger padding -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M21 9V6a2 2 0 0 0-2-2h-3"/><path d="M3 15v3a2 2 0 0 0 2 2h3"/><path d="m21 3-6 6"/><path d="m3 21 6-6"/></svg> <!-- Even Larger icon -->
+            </button>
+        </header>
+
+        <!-- The Central Orb Arena -->
+        <div id="orb-arena">
+            <div class="orb-wrapper">
+                <div class="orb-bg"></div>
+                <div id="orb-text-container">
+                    <div id="orb-text">Hello! I am Klipsy. Attach a source to get started.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls / Input Area -->
+        <div class="flex-none p-6 bg-[#131316]/90 backdrop-blur-xl border-t border-white/5 z-20"> <!-- Even Larger padding -->
+            
+            <!-- Quick Actions -->
+            <div class="flex gap-4 mb-5"> <!-- Even Larger gap/margin -->
+                <button id="btn-connect" class="btn-fx flex-1 py-3.5 px-5 rounded-xl text-base font-semibold bg-zinc-800/80 text-zinc-300 border border-zinc-700/80 hover:bg-zinc-700 hover:text-white flex items-center justify-center gap-3"> <!-- Even Larger text/padding/gap -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> <!-- Even Larger icon -->
+                    <span>Attach Source</span>
+                </button>
+                
+                <button id="btn-capture" disabled class="btn-fx flex-1 py-3.5 px-5 rounded-xl text-base font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 hover:bg-brand-500/20 disabled:opacity-40 disabled:hover:bg-brand-500/10 disabled:cursor-not-allowed flex items-center justify-center gap-3"> <!-- Even Larger text/padding/gap -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg> <!-- Even Larger icon -->
+                    <span>Scan Page</span>
+                </button>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="relative flex items-center">
+                <input id="chat-input" type="text" autocomplete="off" class="w-full bg-[#0a0a0c]/80 backdrop-blur border border-zinc-800 rounded-xl pl-6 pr-16 py-5 text-lg text-zinc-200 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 transition-all placeholder:text-zinc-500 shadow-inner" placeholder="Ask Klipsy for help..."> <!-- Even Larger text/padding -->
+                
+                <button id="send-btn" disabled class="btn-fx absolute right-3 p-2.5 text-zinc-500 hover:text-brand-400 hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-500"> <!-- Repositioned -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> <!-- Even Larger icon -->
+                </button>
+            </div>
+        </div>
+    </main>
+    <canvas id="capture-canvas" class="hidden"></canvas>
+    <div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  CONSTANTS & CONFIG
+// ═══════════════════════════════════════════════════════════
+const GROQ_KEY    = "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";
+const VISION_MDL  = "meta-llama/llama-4-scout-17b-16e-instruct";
+const MODEL_URL   = "https://api.groq.com/openai/v1/chat/completions";
+const ANALYSIS_PROMPT = `You are Klipsy. Analyze the image and respond with THE ANSWER ONLY.
+- No labels. No "Answer:". Do not provide explanations. No punctuation unless it is part of the answer.
+- If multiple choice: just the letter and the full option text. Nothing else.
+- If it is a calculation: just the numerical result.
+- If it is a question: answer in one sentence maximum.
+- Your entire response should be only the answer itself.`;
+
+
+// ═══════════════════════════════════════════════════════════
+//  PiP MODE DETECTION
+// ═══════════════════════════════════════════════════════════
+const IS_PIP = window.__KLIPSY_PIP__ === true;
+if (IS_PIP) {
+    document.body.classList.add('in-pip');
+    document.title = "Klipsy (PiP)";
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════════════════
+const appContainer = document.getElementById('app-container');
+const orbTextEl    = document.getElementById('orb-text');
+const toastEl      = document.getElementById('toast');
+const chatInput    = document.getElementById('chat-input');
+const sendBtn      = document.getElementById('send-btn');
+const btnConnect   = document.getElementById('btn-connect');
+const btnCapture   = document.getElementById('btn-capture');
+const canvasElem   = document.getElementById('capture-canvas');
+const statusPing   = document.getElementById('status-ping');
+const statusDot    = document.getElementById('status-dot');
+const statusText   = document.getElementById('status-text');
+const btnLaunchPip = document.getElementById('btn-launch-pip');
+
+// ═══════════════════════════════════════════════════════════
+//  TOAST UTILITY
+// ═══════════════════════════════════════════════════════════
+let _toastTimer = null;
+function toast(msg, type = 'neutral', duration = 3200) {
+    if (!toastEl) return;
+    clearTimeout(_toastTimer);
+    let icon = '';
+    if (type === 'success') icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    else if (type === 'error') icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+    toastEl.innerHTML = `${icon} <span>${msg}</span>`;
+    toastEl.className = `show${type === 'success' ? ' toast-success' : type === 'error' ? ' toast-error' : ''}`;
+    _toastTimer = setTimeout(() => { toastEl.className = ''; }, duration);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STREAM STATE & UI UPDATES
+// ═══════════════════════════════════════════════════════════
+let mediaStream = null;
+
+function updateStatusUI(connected) {
+    if (connected) {
+        statusPing.classList.add('animate-ping', 'bg-brand-400');
+        statusPing.classList.remove('bg-zinc-500');
+        statusDot.classList.add('bg-brand-500');
+        statusDot.classList.remove('bg-zinc-500');
+        statusText.textContent = 'Stream Connected';
+        statusText.classList.add('text-brand-400');
+        statusText.classList.remove('text-zinc-500');
+    } else {
+        statusPing.classList.remove('animate-ping', 'bg-brand-400');
+        statusPing.classList.add('bg-zinc-500');
+        statusDot.classList.remove('bg-brand-500');
+        statusDot.classList.add('bg-zinc-500');
+        statusText.textContent = 'Disconnected';
+        statusText.classList.remove('text-brand-400');
+        statusText.classList.add('text-zinc-500');
+    }
+}
+
+function applyStream(stream) {
+    mediaStream = stream;
+    btnCapture.disabled = false;
+    updateStatusUI(true);
+    btnConnect.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> <span>Re-Attach Source</span>`;
+    stream.getVideoTracks()[0].onended = handleDisconnect;
+}
+
+function handleDisconnect() {
+    mediaStream = null;
+    btnCapture.disabled = true;
+    updateStatusUI(false);
+    btnConnect.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> <span>Attach Source</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ATTACH SOURCE
+// ═══════════════════════════════════════════════════════════
+btnConnect?.addEventListener('click', async () => {
+    if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+    try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+                displaySurface: 'browser',
+                preferCurrentTab: true,
+                width:  { ideal: 1920, max: 1920 },
+                height: { ideal: 1080, max: 1080 }
+            },
+            audio: false
+        });
+        applyStream(stream);
+        toast('Source attached', 'success');
+        updateOrbText('Source attached! Hit "Scan Page" to analyze.');
+    } catch (err) {
+        if (err.name !== 'NotAllowedError') {
+            toast('Capture access denied', 'error');
+        }
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+//  ORB & CHAT LOGIC
+// ═══════════════════════════════════════════════════════════
+let messages = [
+    { role: 'system', content: 'You are Klipsy, a helpful AI assistant for assignments and studying. Provide extremely concise answers.' }
+];
+
+function setThinkingState(isThinking) {
+    if (isThinking) {
+        appContainer.classList.add('is-thinking');
+    } else {
+        appContainer.classList.remove('is-thinking');
+    }
+}
+
+function updateOrbText(newText, isLoader = false) {
+    orbTextEl.style.opacity = '0';
+    orbTextEl.style.transform = 'scale(0.95)';
+    setTimeout(() => {
+        if (isLoader) {
+            orbTextEl.innerHTML = `<div class="dot-flashing mx-auto mt-3"></div>`;
+        } else {
+            orbTextEl.innerText = newText;
+        }
+        orbTextEl.style.opacity = '1';
+        orbTextEl.style.transform = 'scale(1)';
+    }, 400);
+}
+
+function setInputState() {
+    sendBtn.disabled = chatInput.value.trim().length === 0;
+}
+chatInput.addEventListener('input', setInputState);
+
+// ═══════════════════════════════════════════════════════════
+//  CAPTURE & ANALYZE
+// ═══════════════════════════════════════════════════════════
+btnCapture?.addEventListener('click', async () => {
+    if (!mediaStream) return;
+
+    const video = document.createElement('video');
+    video.srcObject = mediaStream;
+    video.muted = true;
+    await video.play();
+
+    const ctx = canvasElem.getContext('2d');
+    canvasElem.width  = video.videoWidth;
+    canvasElem.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvasElem.width, canvasElem.height);
+
+    video.pause();
+    video.srcObject = null;
+
+    const b64 = canvasElem.toDataURL('image/png').split(',')[1];
+
+    btnCapture.disabled = true;
+    btnConnect.disabled = true;
+    setThinkingState(true);
+    updateOrbText('', true);
+
+    const result = await fetchAnalysisWithBackoff(ANALYSIS_PROMPT, b64);
+
+    setThinkingState(false);
+    updateOrbText(result);
+    btnCapture.disabled = false;
+    btnConnect.disabled = false;
+});
+
+// ═══════════════════════════════════════════════════════════
+//  AI FETCH LOGIC
+// ═══════════════════════════════════════════════════════════
+async function fetchAnalysisWithBackoff(prompt, base64Image) {
+    const payload = {
+        model: VISION_MDL,
+        messages: [{ role: 'user', content: [
+            { type: 'text',      text: prompt },
+            { type: 'image_url', image_url: { url: `data:image/png;base64,${base64Image}` } }
+        ]}],
+        max_tokens: 1000
+    };
+    return makeApiRequest(payload);
+}
+
+async function fetchChat() {
+    const payload = {
+        model: VISION_MDL,
+        messages,
+        max_tokens: 1000
+    };
+    return makeApiRequest(payload);
+}
+
+async function makeApiRequest(payload) {
+    const delays = [1000, 2000, 4000, 8000];
+    for (let i = 0; i < delays.length; i++) {
+        try {
+            const res = await fetch(MODEL_URL, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
+                body:    JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (data.choices?.[0]) return data.choices[0].message.content.trim();
+            throw new Error('Invalid AI response');
+        } catch (err) {
+            if (i === delays.length - 1) return `Error: AI unreachable (${err.message}).`;
+            await new Promise(r => setTimeout(r, delays[i]));
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SEND CHAT MESSAGE
+// ═══════════════════════════════════════════════════════════
+async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = '';
+    setInputState();
+    chatInput.disabled = true;
+    messages.push({ role: 'user', content: text });
+    setThinkingState(true);
+    updateOrbText('', true);
+    const result = await fetchChat();
+    setThinkingState(false);
+    updateOrbText(result);
+    messages.push({ role: 'assistant', content: result });
+    chatInput.disabled = false;
+    chatInput.focus();
+}
+
+sendBtn.addEventListener('click', sendMessage);
+chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+//  PiP LAUNCH LOGIC
+// ═══════════════════════════════════════════════════════════
+if (!IS_PIP && btnLaunchPip) {
+    let activePipWindow = null;
+    btnLaunchPip.addEventListener('click', async () => {
+        if (activePipWindow && !activePipWindow.closed) {
+            try { activePipWindow.focus(); } catch (_) {}
+            return;
+        }
+        if (!('documentPictureInPicture' in window)) {
+            toast('PiP mode unsupported in this browser', 'error');
+            return;
+        }
+        try {
+            const pipWin = await documentPictureInPicture.requestWindow({
+                width: 300, height: 450, disallowReturnToOpener: false /* Even Larger */
+            });
+            pipWin.__KLIPSY_PIP__ = true;
+            pipWin.__KLIPSY_STREAM__ = mediaStream || null;
+            pipWin.document.open();
+            pipWin.document.write(document.documentElement.outerHTML);
+            pipWin.document.close();
+            activePipWindow = pipWin;
+            btnLaunchPip.classList.add('bg-brand-400/20', 'text-brand-400');
+            toast('PiP window launched', 'success');
+            const pollClose = setInterval(() => {
+                if (pipWin.closed) {
+                    clearInterval(pollClose);
+                    btnLaunchPip.classList.remove('bg-brand-400/20', 'text-brand-400');
+                    toast('PiP window closed');
+                    activePipWindow = null;
+                }
+            }, 500);
+            pipWin.addEventListener('pagehide', () => {
+                clearInterval(pollClose);
+                btnLaunchPip.classList.remove('bg-brand-400/20', 'text-brand-400');
+                activePipWindow = null;
+            });
+        } catch (err) {
+            console.error('PiP launch failed:', err);
+            toast('Failed to launch PiP window', 'error');
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUTO-INHERIT STREAM (PiP window only)
+// ═══════════════════════════════════════════════════════════
+if (IS_PIP && window.__KLIPSY_STREAM__) {
+    requestAnimationFrame(() => {
+        applyStream(window.__KLIPSY_STREAM__);
+        updateOrbText('Stream inherited — ready to scan!');
+        toast('Stream inherited', 'success');
+    });
+}
+</script>
+</body>
+</html>
